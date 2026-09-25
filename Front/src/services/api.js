@@ -1,11 +1,18 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const cleanUrl = rawUrl.replace(/\/+$/, '')
+const API_BASE_URL = cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`
+
+const defaultHeaders = {
+  'Content-Type': 'application/json',
+  'ngrok-skip-browser-warning': 'true'
+}
 
 export const api = {
   async login(username, password) {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         body: JSON.stringify({ username, password })
       })
       return await res.json()
@@ -18,7 +25,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         body: JSON.stringify(usuarioData)
       })
       return await res.json()
@@ -29,7 +36,7 @@ export const api = {
 
   async getRoles() {
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/roles`)
+      const res = await fetch(`${API_BASE_URL}/auth/roles`, { headers: defaultHeaders })
       return await res.json()
     } catch (e) {
       return { success: false, data: [] }
@@ -38,7 +45,7 @@ export const api = {
 
   async getMe() {
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/me`)
+      const res = await fetch(`${API_BASE_URL}/auth/me`, { headers: defaultHeaders })
       return await res.json()
     } catch (e) {
       return { success: false }
@@ -47,7 +54,7 @@ export const api = {
 
   async getDestinos() {
     try {
-      const res = await fetch(`${API_BASE_URL}/catalogos/destinos`)
+      const res = await fetch(`${API_BASE_URL}/catalogos/destinos`, { headers: defaultHeaders })
       return await res.json()
     } catch (e) {
       return { success: false, data: [] }
@@ -56,7 +63,7 @@ export const api = {
 
   async getProductos() {
     try {
-      const res = await fetch(`${API_BASE_URL}/catalogos/productos`)
+      const res = await fetch(`${API_BASE_URL}/catalogos/productos`, { headers: defaultHeaders })
       return await res.json()
     } catch (e) {
       return { success: false, data: [] }
@@ -65,7 +72,7 @@ export const api = {
 
   async getRepartidores() {
     try {
-      const res = await fetch(`${API_BASE_URL}/catalogos/repartidores`)
+      const res = await fetch(`${API_BASE_URL}/catalogos/repartidores`, { headers: defaultHeaders })
       return await res.json()
     } catch (e) {
       return { success: false, data: [] }
@@ -74,7 +81,7 @@ export const api = {
 
   async getProveedores() {
     try {
-      const res = await fetch(`${API_BASE_URL}/catalogos/proveedores`)
+      const res = await fetch(`${API_BASE_URL}/catalogos/proveedores`, { headers: defaultHeaders })
       return await res.json()
     } catch (e) {
       return { success: false, data: [] }
@@ -83,7 +90,7 @@ export const api = {
 
   async getPedidos() {
     try {
-      const res = await fetch(`${API_BASE_URL}/pedidos`)
+      const res = await fetch(`${API_BASE_URL}/pedidos`, { headers: defaultHeaders })
       return await res.json()
     } catch (e) {
       return { success: false, data: [] }
@@ -94,7 +101,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE_URL}/pedidos`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         body: JSON.stringify(pedidoData)
       })
       return await res.json()
@@ -107,7 +114,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE_URL}/pedidos/${pedidoId}/tracking`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         body: JSON.stringify(trackingData)
       })
       return await res.json()
@@ -118,7 +125,7 @@ export const api = {
 
   async getHistorialTracking(pedidoId) {
     try {
-      const res = await fetch(`${API_BASE_URL}/pedidos/${pedidoId}/tracking`)
+      const res = await fetch(`${API_BASE_URL}/pedidos/${pedidoId}/tracking`, { headers: defaultHeaders })
       return await res.json()
     } catch (e) {
       return { success: false, data: [] }
