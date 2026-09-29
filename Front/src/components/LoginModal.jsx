@@ -17,7 +17,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     try {
       const res = await api.login(username, password)
       if (res.success && res.user) {
-        onLoginSuccess(res.user)
+        onLoginSuccess(res.user);
+        localStorage.setItem("Token",res.token);
         onClose()
       } else {
         setError(res.detail || res.message || 'Credenciales inválidas')

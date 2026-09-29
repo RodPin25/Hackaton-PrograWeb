@@ -7,7 +7,7 @@ export const api = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
-      })
+      });
       return await res.json()
     } catch (e) {
       return { success: false, message: 'No se pudo conectar con el servidor backend' }
