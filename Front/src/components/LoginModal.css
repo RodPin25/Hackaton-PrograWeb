@@ -1,0 +1,387 @@
+/* STREAMING_CHUNK:Configuring base styles and layout container */
+.meditrack-page-container {
+min-height: 100vh;
+background-color: #f1f5f9;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 1rem;
+font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+box-sizing: border-box;
+}
+
+.meditrack-card {
+width: 100%;
+max-width: 1000px;
+background-color: #ffffff;
+border-radius: 24px;
+box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+overflow: hidden;
+display: grid;
+grid-template-columns: 1fr;
+border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+@media (min-width: 1024px) {
+.meditrack-card {
+grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+}
+
+/* STREAMING_CHUNK:Styling the left brand panel */
+.meditrack-left-panel {
+background-color: #1B365D;
+color: #ffffff;
+padding: 2.5rem;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+position: relative;
+overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+.meditrack-left-panel {
+grid-column: span 5 / span 5;
+padding: 3rem;
+}
+}
+
+.meditrack-glow {
+position: absolute;
+top: -6rem;
+left: -6rem;
+width: 18rem;
+height: 18rem;
+background-color: rgba(37, 99, 235, 0.2);
+border-radius: 9999px;
+filter: blur(48px);
+pointer-events: none;
+}
+
+.meditrack-logo-box {
+background-color: #ffffff;
+border-radius: 16px;
+padding: 1.25rem;
+box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+margin-bottom: 2rem;
+max-width: 260px;
+}
+
+.meditrack-logo-content {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.meditrack-logo-mt {
+font-size: 1.875rem;
+font-weight: 900;
+letter-spacing: -0.05em;
+color: #1B365D;
+line-height: 1;
+}
+
+.meditrack-logo-divider {
+height: 1.75rem;
+width: 1px;
+background-color: #cbd5e1;
+margin: 0 0.25rem;
+}
+
+.meditrack-logo-text-group {
+display: flex;
+flex-direction: column;
+}
+
+.meditrack-logo-title {
+font-size: 1.125rem;
+font-weight: 800;
+letter-spacing: -0.025em;
+color: #1B365D;
+line-height: 1;
+}
+
+.meditrack-logo-subtitle {
+font-size: 9px;
+font-weight: 600;
+color: #2563eb;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+margin-top: 4px;
+}
+
+.meditrack-left-heading {
+font-size: 1.5rem;
+font-weight: 700;
+letter-spacing: -0.025em;
+margin-bottom: 1rem;
+color: #ffffff;
+line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+.meditrack-left-heading {
+font-size: 1.875rem;
+}
+}
+
+.meditrack-left-desc {
+color: #cbd5e1;
+font-size: 0.875rem;
+line-height: 1.6;
+}
+
+.meditrack-left-footer {
+padding-top: 2rem;
+margin-top: 2rem;
+border-top: 1px solid rgba(30, 58, 138, 0.6);
+display: flex;
+align-items: center;
+gap: 0.75rem;
+}
+
+.meditrack-shield-icon {
+padding: 0.5rem;
+background-color: rgba(15, 23, 42, 0.6);
+border-radius: 12px;
+color: #60a5fa;
+border: 1px solid rgba(30, 64, 175, 0.4);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.meditrack-footer-text {
+font-size: 0.75rem;
+font-weight: 500;
+color: #cbd5e1;
+letter-spacing: 0.025em;
+}
+
+/* STREAMING_CHUNK:Styling the right form panel */
+.meditrack-right-panel {
+padding: 2.5rem;
+background-color: #ffffff;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+}
+
+@media (min-width: 1024px) {
+.meditrack-right-panel {
+grid-column: span 7 / span 7;
+padding: 3rem;
+}
+}
+
+.meditrack-form-header {
+margin-bottom: 2rem;
+}
+
+.meditrack-form-title {
+font-size: 1.5rem;
+font-weight: 700;
+color: #0f172a;
+letter-spacing: -0.025em;
+margin: 0 0 0.25rem 0;
+}
+
+@media (min-width: 640px) {
+.meditrack-form-title {
+font-size: 1.875rem;
+}
+}
+
+.meditrack-form-subtitle {
+color: #64748b;
+font-size: 0.875rem;
+margin: 0;
+}
+
+.meditrack-success-box {
+background-color: #ecfdf5;
+border: 1px solid #a7f3d0;
+border-radius: 16px;
+padding: 1.5rem;
+text-align: center;
+margin: 1.5rem 0;
+}
+
+.meditrack-success-icon {
+color: #059669;
+margin: 0 auto 0.75rem auto;
+display: block;
+}
+
+.meditrack-success-title {
+font-size: 1.125rem;
+font-weight: 700;
+color: #064e3b;
+margin: 0 0 0.25rem 0;
+}
+
+.meditrack-success-desc {
+font-size: 0.875rem;
+color: #047857;
+margin: 0;
+}
+
+.meditrack-form {
+display: flex;
+flex-direction: column;
+gap: 1.25rem;
+}
+
+.meditrack-error-alert {
+padding: 0.75rem 1rem;
+background-color: #fff1f2;
+border: 1px solid #fecdd3;
+color: #be123c;
+font-size: 0.875rem;
+border-radius: 12px;
+}
+
+.meditrack-input-group {
+display: flex;
+flex-direction: column;
+}
+
+.meditrack-label {
+display: block;
+font-size: 0.75rem;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+color: #475569;
+margin-bottom: 0.5rem;
+}
+
+.meditrack-input-wrapper {
+position: relative;
+display: flex;
+align-items: center;
+}
+
+.meditrack-input-icon {
+position: absolute;
+left: 0.875rem;
+color: #94a3b8;
+display: flex;
+align-items: center;
+pointer-events: none;
+}
+
+.meditrack-input {
+width: 100%;
+padding: 0.75rem 1rem 0.75rem 2.5rem;
+background-color: #f8fafc;
+border: 1px solid #e2e8f0;
+border-radius: 12px;
+color: #1e293b;
+font-size: 0.875rem;
+outline: none;
+transition: all 0.2s ease;
+box-sizing: border-box;
+}
+
+.meditrack-input-password {
+padding-right: 2.75rem;
+}
+
+.meditrack-input:focus {
+border-color: #1B365D;
+background-color: #ffffff;
+box-shadow: 0 0 0 3px rgba(27, 54, 93, 0.15);
+}
+
+.meditrack-eye-btn {
+position: absolute;
+right: 0.875rem;
+background: none;
+border: none;
+color: #94a3b8;
+cursor: pointer;
+display: flex;
+align-items: center;
+padding: 0;
+}
+
+.meditrack-eye-btn:hover {
+color: #475569;
+}
+
+.meditrack-options-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+font-size: 0.875rem;
+padding-top: 0.25rem;
+}
+
+.meditrack-checkbox-label {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+cursor: pointer;
+user-select: none;
+font-size: 0.8125rem;
+font-weight: 500;
+color: #475569;
+}
+
+.meditrack-checkbox {
+width: 1rem;
+height: 1rem;
+accent-color: #1B365D;
+border-radius: 4px;
+border: 1px solid #cbd5e1;
+}
+
+.meditrack-forgot-link {
+font-size: 0.8125rem;
+font-weight: 600;
+color: #1B365D;
+text-decoration: none;
+}
+
+.meditrack-forgot-link:hover {
+text-decoration: underline;
+}
+
+.meditrack-submit-btn {
+width: 100%;
+margin-top: 0.5rem;
+padding: 0.875rem 1rem;
+background-color: #1B365D;
+color: #ffffff;
+font-weight: 600;
+border-radius: 12px;
+border: none;
+box-shadow: 0 10px 15px -3px rgba(27, 54, 93, 0.2);
+cursor: pointer;
+transition: background-color 0.2s ease, transform 0.1s ease;
+font-size: 0.875rem;
+letter-spacing: 0.025em;
+}
+
+.meditrack-submit-btn:hover {
+background-color: #142847;
+}
+
+.meditrack-submit-btn:active {
+transform: scale(0.99);
+}
+
+.meditrack-card-footer {
+padding-top: 2rem;
+margin-top: 2rem;
+border-top: 1px solid #f1f5f9;
+text-align: center;
+}
+
+.meditrack-copyright {
+font-size: 0.75rem;
+color: #94a3b8;
+margin: 0;
+}
