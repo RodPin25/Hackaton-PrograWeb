@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
-import MapComponent from './components/MapComponent'
+import DetalleEnvio from './pages/DetalleEnvio'
 import Login from './pages/Login'
 import NuevoPedidoModal from './components/NuevoPedidoModal'
 import RegistroUsuarioModal from './components/RegistroUsuarioModal'
@@ -11,6 +11,8 @@ import './App.css'
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+
+  const [tab, setTab] = useState('Detalle de envío');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -43,15 +45,18 @@ function App() {
 
   return (
     <div className="app-container">
-      <Navbar 
-        user={user} 
-        onLogout={handleLogout} 
-        onOpenNuevoPedido={() => console.log('Abrir Nuevo Pedido')}
-        onOpenRegistroUsuario={() => console.log('Abrir Registro')}
+      <Navbar
+        activeTab={tab}
+        onNavigate={setTab}
+        user={user}
+        onLogout={handleLogout}
       />
-      
+
       <main className="main-content">
-        <MapComponent />
+        {tab === 'Detalle de envío' && (
+          // mapSlot: aquí se inyecta el mapa (quien lo implemente solo pasa su componente)
+          <DetalleEnvio mapSlot={null} />
+        )}
       </main>
     </div>
   )

@@ -1,17 +1,23 @@
 import React from 'react';
 import './Navbar.css';
 
-export default function Navbar({ 
-  activeTab = 'Dashboard de Envíos', 
-  userName = 'Dra. María Flores', 
-  userRole = 'Admin Guatemala', 
-  avatarUrl = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80' 
+const TABS = ['Dashboard de envíos', 'Registrar medicina', 'Detalle de envío', 'Asistente IA'];
+
+const iniciales = (user) =>
+  `${(user?.nombres || 'U')[0]}${(user?.apellidos || '')[0] || ''}`.toUpperCase();
+
+export default function Navbar({
+  activeTab = 'Detalle de envío',
+  onNavigate = () => {},
+  user = { nombres: 'María', apellidos: 'Pérez' },
+  onLogout = () => {}
 }) {
+  const nombre = `${user?.nombres || ''} ${user?.apellidos || ''}`.trim();
+
   return (
     <header className="meditrack-navbar">
-      {/* Sección Izquierda: Logotipo */}
       <div className="meditrack-nav-left">
-        <a href="#dashboard" className="meditrack-nav-logo-box">
+        <a href="#dashboard" className="meditrack-nav-logo-box" onClick={() => onNavigate(TABS[0])}>
           <span className="meditrack-nav-logo-mt">MT</span>
           <span className="meditrack-nav-logo-divider"></span>
           <div className="meditrack-nav-logo-text-group">
@@ -21,29 +27,19 @@ export default function Navbar({
         </a>
       </div>
 
-      {/* Sección Central: Enlaces de Navegación */}
       <nav className="meditrack-nav-center">
-        <a 
-          href="#dashboard" 
-          className={`meditrack-nav-link ${activeTab === 'Dashboard de Envíos' ? 'active' : ''}`}
-        >
-          Dashboard de Envíos
-        </a>
-        <a 
-          href="#registrar" 
-          className={`meditrack-nav-link ${activeTab === 'Registrar Medicina' ? 'active' : ''}`}
-        >
-          Registrar Medicina
-        </a>
-        <a 
-          href="#detalles" 
-          className={`meditrack-nav-link ${activeTab === 'Detalles de Ruta' ? 'active' : ''}`}
-        >
-          Detalles de Ruta
-        </a>
+        {TABS.map((tab) => (
+          <a
+            key={tab}
+            href="#"
+            className={`meditrack-nav-link ${activeTab === tab ? 'active' : ''}`}
+            onClick={(e) => { e.preventDefault(); onNavigate(tab); }}
+          >
+            {tab}
+          </a>
+        ))}
       </nav>
 
-      {/* Sección Derecha: Buscador y Perfil de Usuario */}
       <div className="meditrack-nav-right">
         <div className="meditrack-search-wrapper">
           <span className="meditrack-search-icon">
@@ -52,22 +48,16 @@ export default function Navbar({
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
           </span>
-          <input 
-            type="text" 
-            placeholder="Buscar envíos o lotes..." 
-            className="meditrack-search-input"
-          />
+          <input type="text" placeholder="Buscar medicamento..." className="meditrack-search-input" />
         </div>
 
         <div className="meditrack-user-profile">
-          <img 
-            src={avatarUrl} 
-            alt={userName} 
-            className="meditrack-user-avatar" 
-          />
+          <span className="meditrack-user-avatar">{iniciales(user)}</span>
           <div className="meditrack-user-info">
-            <span className="meditrack-user-name">{userName}</span>
-            <span className="meditrack-user-role">{userRole}</span>
+            <span className="meditrack-user-name">{nombre}</span>
+            <button type="button" className="meditrack-user-role meditrack-logout" onClick={onLogout}>
+              Cerrar sesión
+            </button>
           </div>
         </div>
       </div>
