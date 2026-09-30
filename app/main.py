@@ -11,17 +11,20 @@ app = FastAPI(title="API Tracking de Pedidos Hospitalarios")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Configuración de CORS amplia para desarrollo local y frontend
+# Configuración de CORS total para ngrok y peticiones externas
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 from app.api.router import router as api_router
+
+# Registrar con /api y también sin /api para evitar errores 404 de ngrok
 app.include_router(api_router, prefix="/api")
+app.include_router(api_router)
 
 @app.get("/")
 def read_root():

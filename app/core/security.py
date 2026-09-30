@@ -72,23 +72,27 @@ def decodificar_token(token: str) -> dict:
 #  extraer el usuario desde la Cookie 
 def obtener_payload_actual(request: Request) -> dict:
     """
-    lee la cookie access_token
-    valida el JWT y devuelve el payload
+    Soporta autenticación mediante Header Authorization: Bearer <token>
+    o mediante Cookie de sesión 'access_token'
     """
+    auth_header = request.headers.get("Authorization")
     cookie_token = request.cookies.get("access_token")
     
-    if not cookie_token:
+    token = None
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.replace("Bearer ", "")
+    elif auth_header:
+        token = auth_header
+    elif cookie_token:
+        token = cookie_token.replace("Bearer ", "")
+        
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No se encontró la cookie de sesión."
+            detail="No se encontró el token de sesión."
         )
-    
-    # Remover el prefijo bearer si existe
-    token = cookie_token.replace("Bearer ", "")
-    
-    # validar el token y obtener payload
-    payload = decodificar_token(token)
-    return payload
+        
+    return decodificar_token(token)
 
 
 def obtener_usuario_actual(request: Request) -> str:

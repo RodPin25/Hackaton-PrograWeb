@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.api.deps import get_db
-from app.core.security import crear_token_acceso, comparar_hash, hasher
+from app.core.security import crear_token_acceso, comparar_hash, hasher, obtener_payload_actual
 
 router = APIRouter(prefix="/auth", tags=["Autenticación y Usuarios"])
 
@@ -82,6 +82,12 @@ def registrar_usuario(req: RegistroUsuarioInput, db: Session = Depends(get_db)):
         "usuario_id": usuario_id
     }
 
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key="access_token")
+    return {"success": True, "message": "Sesión cerrada exitosamente"}
+
+
 @router.post("/login", response_model=LoginResponse)
 def login(req: LoginRequest, response: Response, db: Session = Depends(get_db)):
     sql = text("""
@@ -114,28 +120,51 @@ def login(req: LoginRequest, response: Response, db: Session = Depends(get_db)):
     }
     
     token = crear_token_acceso({"sub": str(row["usuario_id"]), "rol_id": row["rol_id"]})
-    response.set_cookie(key="access_token", value=f"Bearer {token}", httponly=True)
+    
+    # Cookie configurada para peticiones Cross-Site (Ngrok / Remoto)
+    response.set_cookie(
+        key="access_token", 
+        value=f"Bearer {token}", 
+        httponly=True,
+        samesite="none",
+        secure=True
+    )
     return LoginResponse(success=True, message="Iniciado sesión exitosamente", token=token, user=user_dict)
+
 
 @router.get("/me")
 def get_me(request: Request, db: Session = Depends(get_db)):
+    payload = obtener_payload_actual(request)
+    user_id = payload.get("sub")
+    
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token de autenticación inválido."
+        )
+
     sql = text("""
         SELECT u.id, u.nombres, u.apellidos, u.correo, u.rol_id, r.nombre_rol
         FROM usuarios u
         JOIN roles r ON r.id = u.rol_id
-        ORDER BY u.id ASC LIMIT 1
+        WHERE u.id = :user_id
     """)
-    row = db.execute(sql).mappings().first()
-    if row:
-        return {
-            "success": True,
-            "user": {
-                "id": row["id"],
-                "nombres": row["nombres"],
-                "apellidos": row["apellidos"],
-                "correo": row["correo"],
-                "rol_id": row["rol_id"],
-                "nombre_rol": row["nombre_rol"]
-            }
+    row = db.execute(sql, {"user_id": int(user_id)}).mappings().first()
+    
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+        
+    return {
+        "success": True,
+        "user": {
+            "id": row["id"],
+            "nombres": row["nombres"],
+            "apellidos": row["apellidos"],
+            "correo": row["correo"],
+            "rol_id": row["rol_id"],
+            "nombre_rol": row["nombre_rol"]
         }
-    return {"success": False, "message": "No hay usuarios en la base de datos"}
+    }
