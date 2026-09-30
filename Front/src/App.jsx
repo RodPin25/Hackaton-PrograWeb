@@ -11,6 +11,8 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
 
+  const [tab, setTab] = useState('Detalle de envío');
+
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("Token");
