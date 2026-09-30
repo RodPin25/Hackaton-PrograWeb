@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF } from '@react-google-maps/api'
 
 const containerStyle = {
@@ -32,6 +32,24 @@ export default function MapComponent({ apiKey, pedidos = [], destinos = [], onSe
   const onUnmount = useCallback(function callback() {
     setMap(null)
   }, [])
+
+  useEffect(() => {
+  if (!map) return
+  const puntos = pedidos
+    .map(p => ({
+      lat: parseFloat(p.ultima_latitud ?? p.destino_latitud),
+      lng: parseFloat(p.ultima_longitud ?? p.destino_longitud)
+    }))
+    .filter(pt => !isNaN(pt.lat) && !isNaN(pt.lng))
+
+  if (puntos.length === 0) return
+
+  const bounds = new window.google.maps.LatLngBounds()
+  puntos.forEach(pt => bounds.extend(pt))
+  map.fitBounds(bounds)
+
+  if (puntos.length === 1) map.setZoom(15)
+}, [map, pedidos])
 
   if (!isKeyProvided) {
     return (

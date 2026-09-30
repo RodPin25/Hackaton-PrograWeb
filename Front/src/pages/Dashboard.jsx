@@ -3,20 +3,34 @@ import Navbar from '../components/Navbar';
 import MapComponent from '../components/MapComponent';
 import { api } from '../services/api';
 import './Dashboard.css';
+import TrackingModal from '../components/TrackingModal';
 
 export default function Dashboard({ user, onLogout }) {
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   const [pedidos, setPedidos] = useState([]);
+  const [destinos, setDestinos] = useState([]);
+  const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
+
+const cargarPedidos = async () => {
+  const res = await api.getPedidos();
+  if (res.success && res.data && res.data.length > 0) {
+    setPedidos(res.data);
+  } else {
+    setPedidos(PEDIDOS_DEMO);
+  }
+};
+
+useEffect(() => {
+  cargarPedidos();
+}, []);
 
   useEffect(() => {
-    const fetchPedidos = async () => {
-      const res = await api.getPedidos();
-      if (res.success && res.data) {
-        setPedidos(res.data);
-      }
-    };
-    fetchPedidos();
-  }, []);
-
+  const fetchDestinos = async () => {
+    const res = await api.getDestinos();
+    if (res.success && res.data) setDestinos(res.data);
+  };
+  fetchDestinos();
+}, []);
   return (
     <div className="dashboard-page">
       <Navbar 
@@ -24,6 +38,14 @@ export default function Dashboard({ user, onLogout }) {
         onLogout={onLogout} 
         onOpenNuevoPedido={() => console.log('Abrir Nuevo Pedido')}
         onOpenRegistroUsuario={() => console.log('Abrir Registro')}
+      />
+      <TrackingModal
+        isOpen={!!pedidoSeleccionado}
+        onClose={() => setPedidoSeleccionado(null)}
+        pedido={pedidoSeleccionado}
+        onTrackingUpdated={cargarPedidos}
+        currentUser={user}
+        apiKey={apiKey}
       />
       
       <div className="dashboard-layout">
@@ -48,12 +70,12 @@ export default function Dashboard({ user, onLogout }) {
                 <tbody>
                   {pedidos.length > 0 ? (
                     pedidos.map(p => (
-                      <tr key={p.id_pedido}>
-                        <td className="pedido-code">#{p.id_pedido}</td>
-                        <td className="hospital-title">{p.nombre_destino || 'Destino Desconocido'}</td>
+                      <tr key={p.id}>
+                        <td className="pedido-code">#{p.codigo}</td>
+                        <td className="hospital-title">{p.destino_nombre || 'Destino Desconocido'}</td>
                         <td>
-                          <span className={`status-badge status-${p.estado}`}>
-                            {p.estado}
+                          <span className={`status-badge status-${p.estado_actual}`}>
+                            {p.estado_actual}
                           </span>
                         </td>
                       </tr>
@@ -76,7 +98,12 @@ export default function Dashboard({ user, onLogout }) {
               <h2 style={{ margin: 0, fontSize: '20px', color: '#333' }}>Mapa de Distribución</h2>
               <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#777' }}>Vista en tiempo real de los envíos</p>
             </div>
-            <MapComponent pedidos={pedidos} />
+            <MapComponent 
+            apiKey={apiKey}
+            pedidos={pedidos} 
+            destinos={destinos} 
+            onSelectPedido={setPedidoSeleccionado}
+            />
           </div>
 
         </div>
