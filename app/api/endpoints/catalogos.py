@@ -24,7 +24,7 @@ def get_productos(db: Session = Depends(get_db)):
 
 @router.get("/proveedores")
 def get_proveedores(db: Session = Depends(get_db)):
-    sql = text("SELECT id, nombre, correo, numero FROM proveedores ORDER BY id ASC")
+    sql = text("SELECT id, nombre, correo, numero, latitud, longitud FROM proveedores ORDER BY id ASC")
     rows = db.execute(sql).mappings().all()
     return {"success": True, "data": [dict(r) for r in rows]}
 
@@ -38,3 +38,4 @@ def get_repartidores(db: Session = Depends(get_db)):
     """)
     rows = db.execute(sql).mappings().all()
     return {"success": True, "data": [dict(r) for r in rows]}
+
