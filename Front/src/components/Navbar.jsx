@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import './Navbar.css';
 
-const TABS = ['Dashboard de Envíos','Registrar Medicina', 'Detalles de Ruta' ]
+const TABS = ['Dashboard de Envíos', 'Registrar Medicina', 'Detalles de Ruta'];
 
 export default function Navbar({ 
   activeTab = 'Dashboard de Envíos', 
   avatarUrl = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80',
-  onNavigate = () => {}, 
+  onNavigate = () => {},
   onLogout 
 }) {
   const [userName, setUserName] = useState('Cargando...');
   const [userRole, setUserRole] = useState('...');
-  const iniciales = userName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -27,6 +26,11 @@ export default function Navbar({
     };
     fetchUser();
   }, []);
+
+  const iniciales = (name) => {
+    if (!name || name === 'Cargando...') return 'MT';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  };
 
   return (
     <header className="meditrack-navbar">
@@ -66,12 +70,12 @@ export default function Navbar({
         </div>
 
         <div className="meditrack-user-profile">
-          <span className="meditrack-user-avatar">{iniciales}</span>
+          <div className="meditrack-user-avatar" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e2e8f0', color: '#475569', fontWeight: 'bold'}}>
+            {iniciales(userName)}
+          </div>
           <div className="meditrack-user-info">
             <span className="meditrack-user-name">{userName}</span>
-            <button type="button" className="meditrack-user-role meditrack-logout" onClick={onLogout}>
-              Cerrar sesión
-            </button>
+            <span className="meditrack-user-role">{userRole}</span>
           </div>
           <button 
             onClick={onLogout}
