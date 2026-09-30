@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import uuid
@@ -21,6 +22,7 @@ class CrearPedidoInput(BaseModel):
     notas_finales: Optional[str] = ""
     latitud_inicial: Optional[float] = None
     longitud_inicial: Optional[float] = None
+    fecha_entrega_estimada: Optional[datetime] = None
     items: List[PedidoItemInput]
 
 class ActualizarTrackingInput(BaseModel):
@@ -30,6 +32,7 @@ class ActualizarTrackingInput(BaseModel):
     latitud: float
     longitud: float
     evidencia_url: Optional[str] = None
+    temperatura: Optional[float] = None
 
 @router.get("")
 def listar_pedidos(db: Session = Depends(get_db)):
@@ -50,6 +53,8 @@ def listar_pedidos(db: Session = Depends(get_db)):
             p.total, 
             p.notas_finales, 
             p.fecha_creacion,
+            p.fecha_entrega_estimada,
+            pt.temperatura as temperatura,
             pt.latitud as ultima_latitud,
             pt.longitud as ultima_longitud,
             pt.fecha_actualizacion as ultima_actualizacion
@@ -58,7 +63,7 @@ def listar_pedidos(db: Session = Depends(get_db)):
         LEFT JOIN usuarios u_rep ON u_rep.id = p.repartidor_id
         LEFT JOIN proveedores prov ON prov.id = p.proveedor_id
         LEFT JOIN LATERAL (
-            SELECT latitud, longitud, fecha_actualizacion
+            SELECT latitud, longitud, temperatura, fecha_actualizacion
             FROM pedidos_tracking
             WHERE pedido_id = p.id
             ORDER BY fecha_actualizacion DESC, id DESC
@@ -89,8 +94,8 @@ def crear_pedido(input_data: CrearPedidoInput, db: Session = Depends(get_db)):
     total = sum(item.cantidad * item.precio_unitario for item in input_data.items)
     
     sql_ped = text("""
-        INSERT INTO pedidos (codigo, destino_id, usuario_id, repartidor_id, proveedor_id, estado_actual, total, notas_finales)
-        VALUES (:codigo, :destino_id, :usuario_id, :repartidor_id, :proveedor_id, 'CREADO', :total, :notas)
+        INSERT INTO pedidos (codigo, destino_id, usuario_id, repartidor_id, proveedor_id, estado_actual, total, notas_finales, fecha_entrega_estimada)
+        VALUES (:codigo, :destino_id, :usuario_id, :repartidor_id, :proveedor_id, 'CREADO', :total, :notas, :fecha_entrega_estimada)
         RETURNING id
     """)
     ped_id = db.execute(sql_ped, {
@@ -100,7 +105,8 @@ def crear_pedido(input_data: CrearPedidoInput, db: Session = Depends(get_db)):
         "repartidor_id": input_data.repartidor_id,
         "proveedor_id": input_data.proveedor_id,
         "total": total,
-        "notas": input_data.notas_finales
+        "notas": input_data.notas_finales,
+        "fecha_entrega_estimada": input_data.fecha_entrega_estimada
     }).scalar()
     
     for item in input_data.items:
@@ -149,8 +155,8 @@ def actualizar_tracking(pedido_id: int, input_data: ActualizarTrackingInput, db:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
         
     sql_track = text("""
-        INSERT INTO pedidos_tracking (pedido_id, usuario_id, estado, notas, evidencia_url, latitud, longitud)
-        VALUES (:pedido_id, :usuario_id, :estado, :notas, :evidencia_url, :latitud, :longitud)
+        INSERT INTO pedidos_tracking (pedido_id, usuario_id, estado, notas, evidencia_url, latitud, longitud, temperatura)
+        VALUES (:pedido_id, :usuario_id, :estado, :notas, :evidencia_url, :latitud, :longitud, :temperatura)
     """)
     db.execute(sql_track, {
         "pedido_id": pedido_id,
@@ -159,7 +165,8 @@ def actualizar_tracking(pedido_id: int, input_data: ActualizarTrackingInput, db:
         "notas": input_data.notas,
         "evidencia_url": input_data.evidencia_url,
         "latitud": input_data.latitud,
-        "longitud": input_data.longitud
+        "longitud": input_data.longitud,
+        "temperatura": input_data.temperatura
     })
     
     sql_upd = text("UPDATE pedidos SET estado_actual = :estado WHERE id = :id")
@@ -171,12 +178,12 @@ def actualizar_tracking(pedido_id: int, input_data: ActualizarTrackingInput, db:
 @router.get("/{pedido_id}/tracking")
 def obtener_historial_tracking(pedido_id: int, db: Session = Depends(get_db)):
     sql = text("""
-        SELECT pt.id, pt.pedido_id, pt.estado, pt.notas, pt.evidencia_url, pt.latitud, pt.longitud, pt.fecha_actualizacion,
+        SELECT pt.id, pt.pedido_id, pt.estado, pt.notas, pt.evidencia_url, pt.latitud, pt.longitud, pt.temperatura, pt.fecha_actualizacion,
                CONCAT(u.nombres, ' ', u.apellidos) as usuario_nombre
         FROM pedidos_tracking pt
         JOIN usuarios u ON u.id = pt.usuario_id
         WHERE pt.pedido_id = :pedido_id
         ORDER BY pt.fecha_actualizacion ASC, pt.id ASC
     """)
-    rows = db.execute(sql).mappings().all()
+    rows = db.execute(sql, {"pedido_id": pedido_id}).mappings().all()
     return {"success": True, "data": [dict(r) for r in rows]}

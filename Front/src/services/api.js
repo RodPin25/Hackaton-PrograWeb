@@ -1,3 +1,6 @@
+import { mockGetPedidos, mockGetHistorial } from '../demo/mockEnvio'
+
+const DEMO = import.meta.env.VITE_DEMO === 'true' // npm run demo
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 export const api = {
@@ -82,6 +85,7 @@ export const api = {
   },
 
   async getPedidos() {
+    if (DEMO) return mockGetPedidos()
     try {
       const res = await fetch(`${API_BASE_URL}/pedidos`)
       return await res.json()
@@ -117,6 +121,7 @@ export const api = {
   },
 
   async getHistorialTracking(pedidoId) {
+    if (DEMO) return mockGetHistorial(pedidoId)
     try {
       const res = await fetch(`${API_BASE_URL}/pedidos/${pedidoId}/tracking`)
       return await res.json()
