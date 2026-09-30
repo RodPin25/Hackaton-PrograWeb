@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import './LoginModal.css';
+import { api } from '../services/api';
 
-export default function App() {
+export default function LoginModal({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -9,14 +10,46 @@ export default function App() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!username || !password) {
       setErrorMsg('Por favor completa todos los campos.');
       return;
     }
-    setErrorMsg('');
-    setIsSubmitted(true);
+
+    try {
+      const response = await api.login(username, password);
+      
+      if (response.success === false) {
+        setErrorMsg(response.message || 'Error al iniciar sesión');
+        return;
+      }
+
+      // Detectar errores del backend (por ej. FastAPI devuelve "detail" en 401/404)
+      if (response.detail) {
+        setErrorMsg(typeof response.detail === 'string' ? response.detail : 'Credenciales inválidas');
+        return;
+      }
+
+      const token = response.access_token || response.token || response.Token;
+      
+      // Solo iniciar sesión si realmente recibimos un token
+      if (token) {
+        localStorage.setItem('Token', token);
+        setErrorMsg('');
+        setIsSubmitted(true);
+
+        if (onLoginSuccess) {
+          setTimeout(() => {
+            onLoginSuccess();
+          }, 1500);
+        }
+      } else {
+        setErrorMsg('Error al iniciar sesión: credenciales incorrectas o usuario no encontrado');
+      }
+    } catch (error) {
+      setErrorMsg('Error de conexión con el servidor');
+    }
   };
 
   return (
@@ -76,7 +109,7 @@ export default function App() {
             {/* Success or error message alerts */}
             {isSubmitted ? (
               <div className="meditrack-success-box">
-                <svg className="meditrack-success-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <svg className="meditrack-suc cess-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 <h3 className="meditrack-success-title">¡Sesión iniciada con éxito!</h3>
                 <p className="meditrack-success-desc">Redirigiendo al panel de control de MEDITRACK...</p>
               </div>

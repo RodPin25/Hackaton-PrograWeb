@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
 import './Navbar.css';
 
 export default function Navbar({ 
   activeTab = 'Dashboard de Envíos', 
-  userName = 'Dra. María Flores', 
-  userRole = 'Admin Guatemala', 
-  avatarUrl = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80' 
+  avatarUrl = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80',
+  onLogout 
 }) {
+  const [userName, setUserName] = useState('Cargando...');
+  const [userRole, setUserRole] = useState('...');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await api.getMe();
+      if (res.success && res.user) {
+        setUserName(`${res.user.nombres} ${res.user.apellidos}`);
+        setUserRole(res.user.nombre_rol);
+      } else {
+        setUserName('Usuario');
+        setUserRole('Autenticado');
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <header className="meditrack-navbar">
       {/* Sección Izquierda: Logotipo */}
@@ -69,6 +86,17 @@ export default function Navbar({
             <span className="meditrack-user-name">{userName}</span>
             <span className="meditrack-user-role">{userRole}</span>
           </div>
+          <button 
+            onClick={onLogout}
+            className="meditrack-logout-btn"
+            title="Cerrar Sesión"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
         </div>
       </div>
     </header>
